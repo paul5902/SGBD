@@ -1,0 +1,164 @@
+Exercice 1 
+Question 1 :
+
+let $a := //artist[last_name="Coppola"]
+return <artist>
+  {$a/last_name}
+ {$a/first_name}
+  {$a/birth_date}
+  {for $f in //movie[director[@id=$a/@id]]
+  return <movie>
+  {$f/title}
+  {$f/year}
+  </movie>}
+</artist>
+
+Question 2 :
+
+let $a := //artist[last_name="Coppola"]
+return <html>
+  <head>
+    <title>Films de {$a/first_name/text(),' ',$a/last_name/text()} </title>
+  </head>
+  <body>
+    <h1>{$a/first_name/text(),' ',$a/last_name/text()}</h1>
+    <p>Année de naissance: {$a/birth_date/text()} </p>
+    <h3>Ses Films :</h3>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Titre</th>
+          <th>Année</th>
+        </tr>
+       </thead>
+       <tbody>
+         {for $f in //movie[director[@id=$a/@id]]
+          return <tr>
+          <td>{$f/title/text()}</td>
+          <td>{$f/year}</td>
+          </tr>
+         }
+       </tbody>
+    </table>
+  </body>
+</html>
+
+Question 3 :
+
+<directors>
+{for $r in //movie/director/@id group by $id:=$r
+for $a in //artist[@id=$id], $c in count(//movie/director[@id=$a/@id])
+return <director>
+{$a/last_name}
+{$a/first_name}
+{$a/birth_date}
+<nb_movies>{$c}</nb_movies>
+
+
+</director>
+}
+</directors>
+
+Question 4 :
+
+<movies>
+{for $a in //movie
+return <movie>
+<title>{$a/title/text()}</title>
+<year>{$a/year/text()}</year>
+<genre>{$a/genre/text()}</genre>
+<summary>{$a/summary/text()}</summary>
+{let $d := //artist[@id=$a/director/@id]
+return <director>
+<last_name>{$d/last_name/text()}</last_name>
+<first_name>{$d/first_name/text()}</first_name>
+<birth_date>{$d/birth_date/text()}</birth_date>
+
+</director>}
+<actors>
+{for $act in $a/actor
+let $f := //artist[@id=$act/@id]
+return <actor> 
+<last_name>{$f/last_name/text()}</last_name>
+<first_name>{$f/first_name/text()}</first_name>
+<birth_date>{$f/birth_date/text()}</birth_date>
+</actor>
+}
+</actors>
+
+</movie>
+}
+</movies>
+
+
+Question 2:
+Manque la récursivité 
+
+declare function local:category($categorie as element(categorie)) as element(div)
+{
+  
+  <div>
+    <h3>{$categorie/@nom}
+    </h3>
+    <p>{$categorie/description}</p>
+    {for $sc in $categorie/categorie
+      
+      return <categ>{$sc/@nom/data()}
+      {for $bm in $sc/bookmark
+      return local:transfo($bm)
+      }
+      </categ>
+      
+     
+    }
+  </div>
+  
+};
+
+Question 3: 
+declare function local:transfo($bookmark as element(bookmark)) as element(div)
+{
+  
+  <div>
+  
+  <p>
+  <a>{attribute{'href'}{$bookmark/@url/data()}}{$bookmark/title/text()}</a>
+  </p>
+  <p>{$bookmark/description/text()}</p>
+  </div>
+  
+};
+
+declare function local:category($categorie as element(categorie)) as element(div)
+{
+  
+  <div>
+    <h3>{$categorie/@nom}
+    </h3>
+    <p>{$categorie/description}</p>
+    <ul>
+    {for $sc in $categorie/categorie
+      
+      return <li>{$sc/@nom/data()}
+      {for $bm in $sc/bookmark
+      return local:transfo($bm)
+      }
+      </li>
+      
+     
+    }
+    </ul>
+  </div>
+  
+};
+
+<html>
+{local:category(//categorie[@nom="OS"])}
+</html>
+
+
+
+
+
+
+

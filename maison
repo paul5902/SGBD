@@ -1,0 +1,22 @@
+Question 3)
+
+for $m in //maison/@id, $t in (sum(//maison[@id=$m]/descendant::*[not(@surface-m2)]/*[@surface-m2]/@surface-m2))
+return <maison>{$m}
+<surface-totale>{$t}</surface-totale>
+</maison>
+
+Exercice 3
+Question1:
+
+declare function local:transfo($bookmark as element(bookmark)) as element(div)
+{
+  
+  <div>
+  
+  <p>
+  <a>{attribute{'href'}{$bookmark/@url/data()}}{$bookmark/title/text()}</a>
+  </p>
+  <p>{$bookmark/description/text()}</p>
+  </div>
+  
+};

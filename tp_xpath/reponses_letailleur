@@ -1,0 +1,138 @@
+TP XPATH - LETAILLEUR PAUL
+
+--INTRODUCTION-- 
+
+Question 1 :
+
+1ère séquence : /descendant::eau
+
+Question 2 :
+
+1) /descendant::eau[nom_eau="Volvic"]
+2) /descendant::eau[@id="e2"]/following-sibling::*
+3) /descendant::produits/child::produit[position()=2]
+
+Question 3 :
+
+/cave/*/*[position()=1]
+-> Retourne les premiers éléments de chaque petit fils de cave
+
+
+//produit[formule/text()="Mg+"][position()=2]
+-> Retourne la composition de l'eau contenue dans la bouteille numéro 2.
+
+Question 4 :
+
+//(eau union bouteille)
+//(eau union bouteille)/child::*
+//(bouteille[volume>50]/codebarre | bouteille[volume<=50]/volume)
+
+Question 5 :
+
+some $x in //eau[1]/composition/taux/@ref_produit satisfies $x = "cal"
+-> Retourne si pour l'eau de position 1 un des taux correspondant au "cal"
+
+for $b in //bouteille, $e in id($b/attribute::ref_eau)
+return $e
+-> Retourne les eaux référencées par des bouteilles (c'est-à-dire celles contenues dans des bouteilles et référencées par l'attribut ref_eau).
+
+-- Exercice 1 --
+
+Question 1)
+
+1) //title
+
+2) //title/text()
+
+3) //movie[year>2000]/title/text()
+
+4) //title[contains(text(),"V")]
+
+5) //movie[count(actor)=3]
+
+6) //artist[@id=(//movie[title/text()="Heat"]/director/@id)]
+
+7) //movie[actor[@id=//artist[last_name="Dunst"]/@id]]
+
+8) //movie[summary]
+9) //movie[not(summary)]
+
+10) //movie[title/text()="Unforgiven"]/actor[@id=[//artist[last_name="Eastwood"]/@id]]/@role
+
+11) //movie[last()]
+
+12) //movie[title/text()="Marie Antoinette"]/preceding-sibling::*[1]
+
+Question 2 :
+
+1) //artist/(if (birth_date<1940) then last_name else first_name)
+
+2) //artist/(if (birth_date<1940) then last_name else nothing)
+
+La première expression est impossible à représenter en XPATH 1.0.
+Le deuxième possible avec un prédicat.
+
+
+Question 3 : 
+
+1) Oui, on peut obtenir l'ensemble des couples "nom,prenom" des réalisateurs avec la requête suivante :
+for $id in //artist/@id, $name in //artist[@id=$id]/last_name/text(), $first_name in //artist[@id=$id]/first_name/text()
+return ($name,$first_name)
+
+2) On ne peut pas obtenir la liste de tous les noms puis tous les prénoms avec une boucle for.
+
+Question 4 :
+
+1-- some $var in //movie satisfies count(//$var/actor)=2
+
+2 -- every $var in //artist/@id, $movie in //movie satisfies ((//$movie/actor[@id=$var]) | (//$movie/director[@id=$var] ) )
+
+3-- every $var in //artist/@id satisfies ((//movie/actor[@id=$var]) | (//movie/director[@id=$var] ) )
+
+
+-- Exercice 2 --
+
+--1 
+
+select xmlelement(name genealogies,
+  xmlagg(
+  xmlelement(name "personne",
+    xmlattributes(personne.id_pers as id, personne.sexe as sexe),
+    xmlelement(name "nom", personne.nom),
+    xmlelement(name "prenom", personne.prenom),
+    xmlelement(name "naissance", personne.naissance),
+    xmlelement(name "deces", personne.deces),
+    xmlelement(name "pere", personne.id_pere),
+    xmlelement(name "mere", personne.id_mere)
+    )
+    )
+)
+from personne;
+
+
+Question 2)
+
+1) //personne[@id=6]/naissance
+
+2) //personne[nom="LUCAS" and prenom="Marie"]/naissance
+
+3) (//personne[@id=[//personne[nom="OMNES" and prenom="Guillaume" and naissance="1815"]/pere/text()]] | //personne[@id=[//personne[nom="OMNES" and prenom="Guillaume" and naissance="1815"]/mere/text()]])
+
+4) for $p in //personne[@id=[//personne[@id=7]/pere]]/@id, $m in //personne[@id=[//personne[@id=7]/mere]]/@id, $e in count(//personne[pere=$p or mere=$m])-1 
+return $e
+
+Question 3)
+
+1) //personne[nom="OMNES" and prenom="Yves"]/ancestor::*/concat(nom,prenom)
+
+2) //personne[@id=71]/parent::*/parent::*/count(enfants/personne[@id!=71]) 
+
+3) count(for $f in //personne[@sexe="F"] return (if($f[enfant]) then 1 else 0)) 
+
+
+
+
+
+
+
+
